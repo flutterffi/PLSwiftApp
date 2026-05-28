@@ -15,13 +15,12 @@ struct PLSwiftApp: App {
 
     var body: some Scene {
         WindowGroup {
-            PLAppView(
-                taskRepository: PLTaskRepository(
-                    dataSource: PLSwiftDataTaskDataSource(
-                        modelContext: modelContainer.mainContext
-                    )
+            let taskRepository = PLTaskRepository(
+                dataSource: PLSwiftDataTaskDataSource(
+                    modelContext: modelContainer.mainContext
                 )
             )
+            PLAppView(taskRepository: taskRepository)
         }
         .modelContainer(modelContainer)
     }

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct PLAppView: View {
     @State private var appModel = PLAppModel()
-    @State private var dashboardViewModel = PLDashboardViewModel()
+    @State private var dashboardViewModel: PLDashboardViewModel
     @State private var tasksViewModel = PLTasksViewModel()
     @State private var messagesViewModel = PLMessagesViewModel()
     @State private var settingsViewModel = PLSettingsViewModel()
@@ -11,6 +11,12 @@ struct PLAppView: View {
         taskRepository: any PLTaskRepositoryProtocol = PLTaskRepository(),
         messageRepository: any PLMessageRepositoryProtocol = PLMessageRepository()
     ) {
+        _dashboardViewModel = State(
+            initialValue: PLDashboardViewModel(
+                taskRepository: taskRepository,
+                messageRepository: messageRepository
+            )
+        )
         _tasksViewModel = State(
             initialValue: PLTasksViewModel(repository: taskRepository)
         )
