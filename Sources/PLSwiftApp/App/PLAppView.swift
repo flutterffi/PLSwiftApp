@@ -5,11 +5,12 @@ struct PLAppView: View {
     @State private var dashboardViewModel: PLDashboardViewModel
     @State private var tasksViewModel = PLTasksViewModel()
     @State private var messagesViewModel = PLMessagesViewModel()
-    @State private var settingsViewModel = PLSettingsViewModel()
+    @State private var settingsViewModel: PLSettingsViewModel
 
     init(
         taskRepository: any PLTaskRepositoryProtocol = PLTaskRepository(),
-        messageRepository: any PLMessageRepositoryProtocol = PLMessageRepository()
+        messageRepository: any PLMessageRepositoryProtocol = PLMessageRepository(),
+        settingsRepository: any PLSettingsRepositoryProtocol = PLSettingsRepository()
     ) {
         _dashboardViewModel = State(
             initialValue: PLDashboardViewModel(
@@ -22,6 +23,9 @@ struct PLAppView: View {
         )
         _messagesViewModel = State(
             initialValue: PLMessagesViewModel(repository: messageRepository)
+        )
+        _settingsViewModel = State(
+            initialValue: PLSettingsViewModel(repository: settingsRepository)
         )
     }
 

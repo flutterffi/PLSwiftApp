@@ -12,6 +12,7 @@ PLSwiftApp is a SwiftUI application baseline built on Apple's modern native stac
 - Dashboard summarizes Tasks and Messages through repository-backed async loading.
 - Tasks is the first complete feature and supports load, add, toggle, delete, and clear-completed flows.
 - Messages supports async loading and refresh through a repository-backed view model.
+- Settings persists telemetry preferences through UserDefaults.
 - Dashboard, Messages, and Settings provide feature shells ready for expansion.
 
 All app-level types use the `PL` prefix.
