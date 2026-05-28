@@ -2,8 +2,6 @@
 
 PLSwiftApp is a SwiftUI application baseline built on Apple's modern native stack.
 
-PLSwiftApp targets the latest Apple platform generation only. The project intentionally does not preserve compatibility with older iOS or macOS releases.
-
 ## Architecture
 
 - SwiftUI provides the UI layer and four-tab root shell.
