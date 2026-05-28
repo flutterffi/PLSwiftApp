@@ -2,6 +2,8 @@ import SwiftUI
 
 struct PLTasksView: View {
     @Bindable var viewModel: PLTasksViewModel
+    @State private var editTaskID: PLTaskItem.ID?
+    @State private var editTitle = ""
 
     var body: some View {
         NavigationStack {
@@ -51,6 +53,13 @@ struct PLTasksView: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button("Edit") {
+                                editTaskID = task.id
+                                editTitle = task.title
+                            }
+                            .tint(.blue)
+                        }
                     }
                     .onDelete { offsets in
                         Task {
@@ -93,6 +102,49 @@ struct PLTasksView: View {
             }
             .task {
                 await viewModel.loadTasks()
+            }
+            .sheet(
+                isPresented: Binding(
+                    get: { editTaskID != nil },
+                    set: { isPresented in
+                        if !isPresented {
+                            editTaskID = nil
+                            editTitle = ""
+                        }
+                    }
+                )
+            ) {
+                NavigationStack {
+                    Form {
+                        TextField("Task title", text: $editTitle)
+                    }
+                    .navigationTitle("Edit Task")
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") {
+                                editTaskID = nil
+                                editTitle = ""
+                            }
+                        }
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Save") {
+                                guard let editTaskID else {
+                                    return
+                                }
+                                Task {
+                                    await viewModel.updateTaskTitle(
+                                        id: editTaskID,
+                                        title: editTitle
+                                    )
+                                    self.editTaskID = nil
+                                    editTitle = ""
+                                }
+                            }
+                            .disabled(editTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        }
+                    }
+                }
+                .presentationDetents([.medium])
             }
         }
     }

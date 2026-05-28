@@ -73,6 +73,17 @@ final class PLTasksViewModel {
         await saveTasks()
     }
 
+    func updateTaskTitle(id: PLTaskItem.ID, title: String) async {
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedTitle.isEmpty,
+              let index = tasks.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+
+        tasks[index].title = trimmedTitle
+        await saveTasks()
+    }
+
     func deleteTasks(at offsets: IndexSet) async {
         for offset in offsets.sorted(by: >) {
             tasks.remove(at: offset)

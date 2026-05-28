@@ -88,6 +88,36 @@ final class PLTasksViewModelTests: XCTestCase {
         XCTAssertEqual(savedTasks, [firstTask])
     }
 
+    func testUpdateTaskTitle() async throws {
+        let taskID = UUID(uuidString: "DDDDDDDD-DDDD-DDDD-DDDD-DDDDDDDDDDDD")!
+        let task = PLTaskItem(id: taskID, title: "Draft")
+        let repository = PLTaskRepository(
+            dataSource: PLInMemoryTaskDataSource(tasks: [task])
+        )
+        let viewModel = PLTasksViewModel(repository: repository)
+
+        await viewModel.loadTasks()
+        await viewModel.updateTaskTitle(id: taskID, title: "  Final title  ")
+        let savedTasks = try await repository.fetchTasks()
+
+        XCTAssertEqual(viewModel.tasks, [PLTaskItem(id: taskID, title: "Final title")])
+        XCTAssertEqual(savedTasks, [PLTaskItem(id: taskID, title: "Final title")])
+    }
+
+    func testUpdateTaskTitleIgnoresEmptyTitle() async throws {
+        let taskID = UUID(uuidString: "EEEEEEEE-EEEE-EEEE-EEEE-EEEEEEEEEEEE")!
+        let task = PLTaskItem(id: taskID, title: "Keep")
+        let repository = PLTaskRepository(
+            dataSource: PLInMemoryTaskDataSource(tasks: [task])
+        )
+        let viewModel = PLTasksViewModel(repository: repository)
+
+        await viewModel.loadTasks()
+        await viewModel.updateTaskTitle(id: taskID, title: "   ")
+
+        XCTAssertEqual(viewModel.tasks, [task])
+    }
+
     func testSwiftDataDataSourcePersistsTasks() async throws {
         let container = try ModelContainer(
             for: PLStoredTask.self,
