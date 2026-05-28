@@ -1,4 +1,5 @@
 @testable import PLSwiftApp
+import SwiftData
 import XCTest
 
 @MainActor
@@ -48,5 +49,20 @@ final class PLTasksViewModelTests: XCTestCase {
         await viewModel.clearCompletedTasks()
 
         XCTAssertEqual(viewModel.tasks, [])
+    }
+
+    func testSwiftDataDataSourcePersistsTasks() async throws {
+        let container = try ModelContainer(
+            for: PLStoredTask.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let dataSource = PLSwiftDataTaskDataSource(modelContext: container.mainContext)
+        let repository = PLTaskRepository(dataSource: dataSource)
+        let task = PLTaskItem(title: "Persisted task", isCompleted: true)
+
+        try await repository.saveTasks([task])
+        let loadedTasks = try await repository.fetchTasks()
+
+        XCTAssertEqual(loadedTasks, [task])
     }
 }
