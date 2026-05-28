@@ -51,6 +51,43 @@ final class PLTasksViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.tasks, [])
     }
 
+    func testFilteredTasks() async {
+        let activeTask = PLTaskItem(title: "Open")
+        let doneTask = PLTaskItem(title: "Done", isCompleted: true)
+        let repository = PLTaskRepository(
+            dataSource: PLInMemoryTaskDataSource(tasks: [activeTask, doneTask])
+        )
+        let viewModel = PLTasksViewModel(repository: repository)
+
+        await viewModel.loadTasks()
+
+        viewModel.selectedFilter = .active
+        XCTAssertEqual(viewModel.filteredTasks, [activeTask])
+
+        viewModel.selectedFilter = .done
+        XCTAssertEqual(viewModel.filteredTasks, [doneTask])
+
+        viewModel.selectedFilter = .all
+        XCTAssertEqual(viewModel.filteredTasks, [activeTask, doneTask])
+    }
+
+    func testDeleteFilteredTasks() async throws {
+        let firstTask = PLTaskItem(title: "Keep")
+        let secondTask = PLTaskItem(title: "Delete", isCompleted: true)
+        let repository = PLTaskRepository(
+            dataSource: PLInMemoryTaskDataSource(tasks: [firstTask, secondTask])
+        )
+        let viewModel = PLTasksViewModel(repository: repository)
+
+        await viewModel.loadTasks()
+        viewModel.selectedFilter = .done
+        await viewModel.deleteFilteredTasks(at: IndexSet(integer: 0))
+        let savedTasks = try await repository.fetchTasks()
+
+        XCTAssertEqual(viewModel.tasks, [firstTask])
+        XCTAssertEqual(savedTasks, [firstTask])
+    }
+
     func testSwiftDataDataSourcePersistsTasks() async throws {
         let container = try ModelContainer(
             for: PLStoredTask.self,

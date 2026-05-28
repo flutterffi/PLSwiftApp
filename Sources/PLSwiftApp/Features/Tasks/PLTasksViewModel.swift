@@ -6,6 +6,7 @@ import Observation
 final class PLTasksViewModel {
     var draftTitle = ""
     var tasks: [PLTaskItem] = []
+    var selectedFilter: PLTaskFilter = .all
     var isLoading = false
     var errorMessage: String?
 
@@ -22,6 +23,17 @@ final class PLTasksViewModel {
 
     var activeTaskCount: Int {
         tasks.filter { !$0.isCompleted }.count
+    }
+
+    var filteredTasks: [PLTaskItem] {
+        switch selectedFilter {
+        case .all:
+            return tasks
+        case .active:
+            return tasks.filter { !$0.isCompleted }
+        case .done:
+            return tasks.filter(\.isCompleted)
+        }
     }
 
     var canAddTask: Bool {
@@ -65,6 +77,14 @@ final class PLTasksViewModel {
         for offset in offsets.sorted(by: >) {
             tasks.remove(at: offset)
         }
+        await saveTasks()
+    }
+
+    func deleteFilteredTasks(at offsets: IndexSet) async {
+        let idsToDelete = offsets.compactMap { offset in
+            filteredTasks.indices.contains(offset) ? filteredTasks[offset].id : nil
+        }
+        tasks.removeAll { idsToDelete.contains($0.id) }
         await saveTasks()
     }
 

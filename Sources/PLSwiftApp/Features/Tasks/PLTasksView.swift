@@ -24,7 +24,17 @@ struct PLTasksView: View {
                 }
 
                 Section {
-                    ForEach(viewModel.tasks) { task in
+                    Picker("Filter", selection: $viewModel.selectedFilter) {
+                        ForEach(PLTaskFilter.allCases) { filter in
+                            Text(filter.rawValue)
+                                .tag(filter)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                }
+
+                Section {
+                    ForEach(viewModel.filteredTasks) { task in
                         Button {
                             Task {
                                 await viewModel.toggleTaskCompletion(id: task.id)
@@ -44,7 +54,7 @@ struct PLTasksView: View {
                     }
                     .onDelete { offsets in
                         Task {
-                            await viewModel.deleteTasks(at: offsets)
+                            await viewModel.deleteFilteredTasks(at: offsets)
                         }
                     }
                 } header: {
