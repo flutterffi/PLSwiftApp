@@ -53,6 +53,14 @@ struct PLTasksView: View {
                         }
                     }
                     .pickerStyle(.segmented)
+
+                    Picker("Sort", selection: $viewModel.sortMode) {
+                        ForEach(PLTaskSortMode.allCases) { sortMode in
+                            Text(sortMode.rawValue)
+                                .tag(sortMode)
+                        }
+                    }
+                    .pickerStyle(.segmented)
                 }
 
                 Section {

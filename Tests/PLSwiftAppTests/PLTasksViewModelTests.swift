@@ -153,6 +153,42 @@ final class PLTasksViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.filteredTasks, [doneTask])
     }
 
+    func testSortTasksByPriority() async {
+        let lowTask = PLTaskItem(title: "Low", priority: .low)
+        let highTask = PLTaskItem(title: "High", priority: .high)
+        let mediumTask = PLTaskItem(title: "Medium", priority: .medium)
+        let repository = PLTaskRepository(
+            dataSource: PLInMemoryTaskDataSource(tasks: [lowTask, highTask, mediumTask])
+        )
+        let viewModel = PLTasksViewModel(repository: repository)
+
+        await viewModel.loadTasks()
+        viewModel.sortMode = .priority
+
+        XCTAssertEqual(viewModel.filteredTasks, [highTask, mediumTask, lowTask])
+    }
+
+    func testSortTasksByDueDate() async {
+        let undatedTask = PLTaskItem(title: "Undated")
+        let laterTask = PLTaskItem(
+            title: "Later",
+            dueDate: Date(timeIntervalSince1970: 1_900_000_000)
+        )
+        let earlierTask = PLTaskItem(
+            title: "Earlier",
+            dueDate: Date(timeIntervalSince1970: 1_800_000_000)
+        )
+        let repository = PLTaskRepository(
+            dataSource: PLInMemoryTaskDataSource(tasks: [undatedTask, laterTask, earlierTask])
+        )
+        let viewModel = PLTasksViewModel(repository: repository)
+
+        await viewModel.loadTasks()
+        viewModel.sortMode = .dueDate
+
+        XCTAssertEqual(viewModel.filteredTasks, [earlierTask, laterTask, undatedTask])
+    }
+
     func testUpdateTaskTitle() async throws {
         let taskID = UUID(uuidString: "DDDDDDDD-DDDD-DDDD-DDDD-DDDDDDDDDDDD")!
         let task = PLTaskItem(id: taskID, title: "Draft")
@@ -300,6 +336,21 @@ final class PLTasksViewModelTests: XCTestCase {
 
         await viewModel.loadTasks()
         viewModel.searchText = "first"
+        await viewModel.moveTasks(from: IndexSet(integer: 0), to: 2)
+
+        XCTAssertEqual(viewModel.tasks, [firstTask, secondTask])
+    }
+
+    func testMoveTasksRequiresManualSort() async {
+        let firstTask = PLTaskItem(title: "First")
+        let secondTask = PLTaskItem(title: "Second")
+        let repository = PLTaskRepository(
+            dataSource: PLInMemoryTaskDataSource(tasks: [firstTask, secondTask])
+        )
+        let viewModel = PLTasksViewModel(repository: repository)
+
+        await viewModel.loadTasks()
+        viewModel.sortMode = .priority
         await viewModel.moveTasks(from: IndexSet(integer: 0), to: 2)
 
         XCTAssertEqual(viewModel.tasks, [firstTask, secondTask])

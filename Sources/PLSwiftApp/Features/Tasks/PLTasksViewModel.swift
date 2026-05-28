@@ -10,6 +10,7 @@ final class PLTasksViewModel {
     var draftDueDate = Date()
     var tasks: [PLTaskItem] = []
     var selectedFilter: PLTaskFilter = .all
+    var sortMode: PLTaskSortMode = .manual
     var searchText = ""
     var isLoading = false
     var errorMessage: String?
@@ -40,13 +41,15 @@ final class PLTasksViewModel {
         }
 
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !query.isEmpty else {
-            return filteredTasks
+        let searchedTasks = if query.isEmpty {
+            filteredTasks
+        } else {
+            filteredTasks.filter {
+                $0.title.localizedCaseInsensitiveContains(query)
+            }
         }
 
-        return filteredTasks.filter {
-            $0.title.localizedCaseInsensitiveContains(query)
-        }
+        return sortTasks(searchedTasks)
     }
 
     var canAddTask: Bool {
@@ -54,7 +57,9 @@ final class PLTasksViewModel {
     }
 
     var canReorderTasks: Bool {
-        selectedFilter == .all && searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        selectedFilter == .all
+        && sortMode == .manual
+        && searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     func loadTasks() async {
@@ -162,6 +167,36 @@ final class PLTasksViewModel {
 
     private var trimmedDraftTitle: String {
         draftTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func sortTasks(_ tasks: [PLTaskItem]) -> [PLTaskItem] {
+        switch sortMode {
+        case .manual:
+            return tasks
+        case .priority:
+            return tasks.sorted {
+                if $0.priority.rank == $1.priority.rank {
+                    return $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
+                }
+                return $0.priority.rank > $1.priority.rank
+            }
+        case .dueDate:
+            return tasks.sorted {
+                switch ($0.dueDate, $1.dueDate) {
+                case let (lhs?, rhs?):
+                    if lhs == rhs {
+                        return $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
+                    }
+                    return lhs < rhs
+                case (_?, nil):
+                    return true
+                case (nil, _?):
+                    return false
+                case (nil, nil):
+                    return $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
+                }
+            }
+        }
     }
 
     private func saveTasks() async {
