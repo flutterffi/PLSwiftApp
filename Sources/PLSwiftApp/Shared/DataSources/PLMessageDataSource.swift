@@ -2,10 +2,11 @@ import Foundation
 
 protocol PLMessageDataSourceProtocol: Sendable {
     func fetchThreads() async throws -> [PLMessageThread]
+    func saveThreads(_ threads: [PLMessageThread]) async throws
 }
 
-struct PLStaticMessageDataSource: PLMessageDataSourceProtocol {
-    private let threads: [PLMessageThread]
+actor PLStaticMessageDataSource: PLMessageDataSourceProtocol {
+    private var threads: [PLMessageThread]
 
     init(
         threads: [PLMessageThread] = [
@@ -18,6 +19,10 @@ struct PLStaticMessageDataSource: PLMessageDataSourceProtocol {
 
     func fetchThreads() async throws -> [PLMessageThread] {
         threads
+    }
+
+    func saveThreads(_ threads: [PLMessageThread]) async throws {
+        self.threads = threads
     }
 }
 
@@ -44,6 +49,8 @@ struct PLRemoteMessageDataSource: PLMessageDataSourceProtocol {
             )
         }
     }
+
+    func saveThreads(_ threads: [PLMessageThread]) async throws {}
 }
 
 private struct PLMessageThreadResponse: Decodable {

@@ -55,10 +55,29 @@ final class PLMessagesViewModelTests: XCTestCase {
         let viewModel = PLMessagesViewModel(repository: repository)
 
         await viewModel.loadThreads()
-        viewModel.toggleReadStatus(id: "build")
+        await viewModel.toggleReadStatus(id: "build")
 
         XCTAssertEqual(
             viewModel.threads,
+            [PLMessageThread(id: "build", title: "Build", preview: "Ready.", isUnread: false)]
+        )
+    }
+
+    func testToggleReadStatusPersistsThreads() async throws {
+        let dataSource = PLStaticMessageDataSource(
+            threads: [
+                PLMessageThread(id: "build", title: "Build", preview: "Ready.")
+            ]
+        )
+        let repository = PLMessageRepository(dataSource: dataSource)
+        let viewModel = PLMessagesViewModel(repository: repository)
+
+        await viewModel.loadThreads()
+        await viewModel.toggleReadStatus(id: "build")
+        let savedThreads = try await repository.fetchThreads()
+
+        XCTAssertEqual(
+            savedThreads,
             [PLMessageThread(id: "build", title: "Build", preview: "Ready.", isUnread: false)]
         )
     }

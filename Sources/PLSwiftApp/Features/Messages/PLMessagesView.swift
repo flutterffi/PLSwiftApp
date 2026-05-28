@@ -30,7 +30,9 @@ struct PLMessagesView: View {
                         .padding(.vertical, 4)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button(thread.isUnread ? "Mark Read" : "Mark Unread") {
-                                viewModel.toggleReadStatus(id: thread.id)
+                                Task {
+                                    await viewModel.toggleReadStatus(id: thread.id)
+                                }
                             }
                             .tint(.blue)
                         }

@@ -51,11 +51,20 @@ final class PLMessagesViewModel {
         await loadThreads()
     }
 
-    func toggleReadStatus(id: PLMessageThread.ID) {
+    func toggleReadStatus(id: PLMessageThread.ID) async {
         guard let index = threads.firstIndex(where: { $0.id == id }) else {
             return
         }
 
         threads[index].isUnread.toggle()
+        await saveThreads()
+    }
+
+    private func saveThreads() async {
+        do {
+            try await repository.saveThreads(threads)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 }
