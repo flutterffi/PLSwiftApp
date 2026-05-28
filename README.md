@@ -21,7 +21,7 @@ All app-level types use the `PL` prefix.
 ## Platform Baseline
 
 - iOS 18.0
-- macOS 14
+- macOS 15.0
 - Swift tools 5.9
 
 The package keeps Swift tools on 5.9 for current compatibility while keeping the source ready for a later Swift 6 tools migration. Core protocols and models use `Sendable`, UI-facing view models use `@MainActor`, and SwiftGen uses custom Swift 6-ready templates for generated resource code.

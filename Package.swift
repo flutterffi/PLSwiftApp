@@ -7,7 +7,7 @@ let package = Package(
     defaultLocalization: "en",
     platforms: [
         .iOS("18.0"),
-        .macOS(.v14)
+        .macOS("15.0")
     ],
     products: [
         .executable(name: "PLSwiftApp", targets: ["PLSwiftApp"])
