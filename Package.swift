@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.3
 
 import PackageDescription
 
@@ -6,8 +6,8 @@ let package = Package(
     name: "PLSwiftApp",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v17),
-        .macOS(.v14)
+        .iOS(.v26),
+        .macOS(.v26)
     ],
     products: [
         .executable(name: "PLSwiftApp", targets: ["PLSwiftApp"])

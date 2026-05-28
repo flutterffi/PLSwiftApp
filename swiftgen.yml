@@ -5,7 +5,7 @@ xcassets:
   inputs:
     - Assets.xcassets
   outputs:
-    - templateName: swift5
+    - templatePath: SwiftGenTemplates/xcassets-swift6.stencil
       output: PLResources+Assets.swift
       params:
         enumName: PLAsset
@@ -25,7 +25,7 @@ json:
     - Mock/MessageThreads.json
     - Mock/TaskSeeds.json
   outputs:
-    - templateName: runtime-swift5
+    - templatePath: SwiftGenTemplates/json-mainactor-swift6.stencil
       output: PLResources+JSON.swift
       params:
         enumName: PLJSON

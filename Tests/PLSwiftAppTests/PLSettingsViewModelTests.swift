@@ -40,12 +40,14 @@ final class PLSettingsViewModelTests: XCTestCase {
             )
         )
     }
+}
 
+final class PLSettingsDataSourceTests: XCTestCase {
     func testUserDefaultsDataSourcePersistsSettings() async throws {
         let suiteName = "PLSettingsViewModelTests.\(UUID().uuidString)"
         let userDefaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
         defer {
-            userDefaults.removePersistentDomain(forName: suiteName)
+            UserDefaults(suiteName: suiteName)?.removePersistentDomain(forName: suiteName)
         }
         let dataSource = PLUserDefaultsSettingsDataSource(userDefaults: userDefaults)
         let expectedSettings = PLAppSettings(

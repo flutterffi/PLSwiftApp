@@ -1,6 +1,7 @@
 @testable import PLSwiftApp
 import XCTest
 
+@MainActor
 final class PLResourceCatalogTests: XCTestCase {
     func testGeneratedStringResources() {
         XCTAssertEqual(PLString.Tasks.title, "Tasks")
