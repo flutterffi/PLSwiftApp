@@ -11,11 +11,19 @@ let package = Package(
     products: [
         .executable(name: "PLSwiftApp", targets: ["PLSwiftApp"])
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/SwiftGen/SwiftGenPlugin", from: "6.6.0")
+    ],
     targets: [
         .executableTarget(
             name: "PLSwiftApp",
-            dependencies: []
+            dependencies: [],
+            resources: [
+                .process("Resources")
+            ],
+            plugins: [
+                .plugin(name: "SwiftGenPlugin", package: "SwiftGenPlugin")
+            ]
         ),
         .testTarget(
             name: "PLSwiftAppTests",

@@ -72,14 +72,14 @@ struct PLTasksView: View {
                         } label: {
                             HStack(spacing: 12) {
                                 Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(task.isCompleted ? .green : .secondary)
+                                    .foregroundStyle(task.isCompleted ? PLAsset.successTint.swiftUIColor : .secondary)
                                 Text(task.title)
                                     .strikethrough(task.isCompleted)
                                     .foregroundStyle(task.isCompleted ? .secondary : .primary)
                                 Spacer()
                                 Text(task.priority.rawValue)
                                     .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(priorityStyle(for: task.priority))
                                 if let dueDate = task.dueDate {
                                     Text(dueDate, style: .date)
                                         .font(.caption)
@@ -221,5 +221,9 @@ struct PLTasksView: View {
                 .presentationDetents([.medium])
             }
         }
+    }
+
+    private func priorityStyle(for priority: PLTaskPriority) -> Color {
+        priority == .high ? PLAsset.highPriorityTint.swiftUIColor : .secondary
     }
 }

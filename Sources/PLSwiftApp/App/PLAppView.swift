@@ -57,5 +57,6 @@ struct PLAppView: View {
                 }
                 .tag(PLTab.settings)
         }
+        .tint(PLAsset.appTint.swiftUIColor)
     }
 }
