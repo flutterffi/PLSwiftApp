@@ -32,7 +32,7 @@ struct PLRemoteMessageDataSource: PLMessageDataSourceProtocol {
 
     init(
         apiClient: PLAPIClient = .live,
-        endpoint: any PLEndpoint = PLMessageEndpoint.threads
+        endpoint: any PLEndpoint
     ) {
         self.apiClient = apiClient
         self.endpoint = endpoint
@@ -58,20 +58,4 @@ private struct PLMessageThreadResponse: Decodable {
     var title: String
     var preview: String
     var isUnread: Bool?
-}
-
-enum PLMessageEndpoint: PLEndpoint {
-    case threads
-
-    var url: URL {
-        URL(string: "https://api.example.com/messages/threads")!
-    }
-
-    var method: PLHTTPMethod {
-        .get
-    }
-
-    var headers: [String: String] {
-        ["Accept": "application/json"]
-    }
 }
