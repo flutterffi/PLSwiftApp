@@ -51,7 +51,6 @@
   {{accessModifier}} let name: String
 
   #if canImport(SwiftUI)
-  @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
   {{accessModifier}} var swiftUIColor: SwiftUI.Color {
     SwiftUI.Color(name, bundle: BundleToken.bundle)
   }
@@ -62,7 +61,6 @@
   {{accessModifier}} let name: String
 
   #if canImport(SwiftUI)
-  @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
   {{accessModifier}} var swiftUIImage: SwiftUI.Image {
     SwiftUI.Image(name, bundle: BundleToken.bundle)
   }
