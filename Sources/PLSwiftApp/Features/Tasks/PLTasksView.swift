@@ -66,6 +66,11 @@ struct PLTasksView: View {
                             await viewModel.deleteFilteredTasks(at: offsets)
                         }
                     }
+                    .onMove { offsets, destination in
+                        Task {
+                            await viewModel.moveTasks(from: offsets, to: destination)
+                        }
+                    }
                 } header: {
                     Text("\(viewModel.activeTaskCount) Active")
                 }

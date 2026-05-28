@@ -118,6 +118,38 @@ final class PLTasksViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.tasks, [task])
     }
 
+    func testMoveTasks() async throws {
+        let firstTask = PLTaskItem(title: "First")
+        let secondTask = PLTaskItem(title: "Second")
+        let thirdTask = PLTaskItem(title: "Third")
+        let repository = PLTaskRepository(
+            dataSource: PLInMemoryTaskDataSource(tasks: [firstTask, secondTask, thirdTask])
+        )
+        let viewModel = PLTasksViewModel(repository: repository)
+
+        await viewModel.loadTasks()
+        await viewModel.moveTasks(from: IndexSet(integer: 0), to: 3)
+        let savedTasks = try await repository.fetchTasks()
+
+        XCTAssertEqual(viewModel.tasks, [secondTask, thirdTask, firstTask])
+        XCTAssertEqual(savedTasks, [secondTask, thirdTask, firstTask])
+    }
+
+    func testMoveTasksRequiresAllFilter() async {
+        let firstTask = PLTaskItem(title: "First")
+        let secondTask = PLTaskItem(title: "Second")
+        let repository = PLTaskRepository(
+            dataSource: PLInMemoryTaskDataSource(tasks: [firstTask, secondTask])
+        )
+        let viewModel = PLTasksViewModel(repository: repository)
+
+        await viewModel.loadTasks()
+        viewModel.selectedFilter = .active
+        await viewModel.moveTasks(from: IndexSet(integer: 0), to: 2)
+
+        XCTAssertEqual(viewModel.tasks, [firstTask, secondTask])
+    }
+
     func testSwiftDataDataSourcePersistsTasks() async throws {
         let container = try ModelContainer(
             for: PLStoredTask.self,
@@ -131,5 +163,21 @@ final class PLTasksViewModelTests: XCTestCase {
         let loadedTasks = try await repository.fetchTasks()
 
         XCTAssertEqual(loadedTasks, [task])
+    }
+
+    func testSwiftDataDataSourcePreservesTaskOrder() async throws {
+        let container = try ModelContainer(
+            for: PLStoredTask.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let dataSource = PLSwiftDataTaskDataSource(modelContext: container.mainContext)
+        let repository = PLTaskRepository(dataSource: dataSource)
+        let firstTask = PLTaskItem(title: "First")
+        let secondTask = PLTaskItem(title: "Second")
+
+        try await repository.saveTasks([secondTask, firstTask])
+        let loadedTasks = try await repository.fetchTasks()
+
+        XCTAssertEqual(loadedTasks, [secondTask, firstTask])
     }
 }

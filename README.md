@@ -10,7 +10,7 @@ PLSwiftApp is a SwiftUI application baseline built on Apple's modern native stac
 - URLSession powers the reusable API client and remote message data source.
 - SwiftData persists task state through the live data source.
 - Dashboard summarizes Tasks and Messages through repository-backed async loading.
-- Tasks is the first complete feature and supports load, add, edit, toggle, filter, delete, and clear-completed flows.
+- Tasks is the first complete feature and supports load, add, edit, toggle, filter, reorder, delete, and clear-completed flows.
 - Messages supports async loading and refresh through a repository-backed view model.
 - Settings persists telemetry preferences through UserDefaults.
 - Dashboard, Messages, and Settings provide feature shells ready for expansion.

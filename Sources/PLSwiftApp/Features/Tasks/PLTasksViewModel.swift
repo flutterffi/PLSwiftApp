@@ -40,6 +40,10 @@ final class PLTasksViewModel {
         !trimmedDraftTitle.isEmpty
     }
 
+    var canReorderTasks: Bool {
+        selectedFilter == .all
+    }
+
     func loadTasks() async {
         isLoading = true
         errorMessage = nil
@@ -96,6 +100,20 @@ final class PLTasksViewModel {
             filteredTasks.indices.contains(offset) ? filteredTasks[offset].id : nil
         }
         tasks.removeAll { idsToDelete.contains($0.id) }
+        await saveTasks()
+    }
+
+    func moveTasks(from offsets: IndexSet, to destination: Int) async {
+        guard canReorderTasks else {
+            return
+        }
+
+        let movingTasks = offsets.sorted().map { tasks[$0] }
+        tasks.remove(atOffsets: offsets)
+
+        let removedBeforeDestination = offsets.filter { $0 < destination }.count
+        let adjustedDestination = destination - removedBeforeDestination
+        tasks.insert(contentsOf: movingTasks, at: adjustedDestination)
         await saveTasks()
     }
 
