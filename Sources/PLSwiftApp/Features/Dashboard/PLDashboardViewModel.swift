@@ -54,6 +54,7 @@ final class PLDashboardViewModel {
                 PLDashboardSummary(title: "Due Today", value: "\(dueTodayTaskCount)"),
                 PLDashboardSummary(title: "Overdue", value: "\(overdueTaskCount)"),
                 PLDashboardSummary(title: "Messages", value: "\(loadedThreads.count)"),
+                PLDashboardSummary(title: "Unread Messages", value: "\(loadedThreads.filter(\.isUnread).count)"),
                 PLDashboardSummary(title: "Status", value: openTaskCount == 0 ? "Clear" : "Active")
             ]
         } catch {

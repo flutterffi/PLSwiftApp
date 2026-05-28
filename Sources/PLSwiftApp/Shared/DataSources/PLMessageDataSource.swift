@@ -10,7 +10,7 @@ struct PLStaticMessageDataSource: PLMessageDataSourceProtocol {
     init(
         threads: [PLMessageThread] = [
             PLMessageThread(title: "Platform", preview: "Architecture baseline is ready."),
-            PLMessageThread(title: "Release", preview: "Tag preparation is queued.")
+            PLMessageThread(title: "Release", preview: "Tag preparation is queued.", isUnread: false)
         ]
     ) {
         self.threads = threads
@@ -36,7 +36,12 @@ struct PLRemoteMessageDataSource: PLMessageDataSourceProtocol {
     func fetchThreads() async throws -> [PLMessageThread] {
         let response: [PLMessageThreadResponse] = try await apiClient.request(endpoint)
         return response.map {
-            PLMessageThread(id: $0.id, title: $0.title, preview: $0.preview)
+            PLMessageThread(
+                id: $0.id,
+                title: $0.title,
+                preview: $0.preview,
+                isUnread: $0.isUnread ?? true
+            )
         }
     }
 }
@@ -45,6 +50,7 @@ private struct PLMessageThreadResponse: Decodable {
     var id: String
     var title: String
     var preview: String
+    var isUnread: Bool?
 }
 
 enum PLMessageEndpoint: PLEndpoint {

@@ -18,6 +18,51 @@ final class PLMessagesViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.errorMessage)
     }
 
+    func testSearchThreads() async {
+        let firstThread = PLMessageThread(title: "Build", preview: "Async messages are ready.")
+        let secondThread = PLMessageThread(title: "Release", preview: "Tag is ready.")
+        let repository = PLMessageRepository(
+            dataSource: PLStaticMessageDataSource(threads: [firstThread, secondThread])
+        )
+        let viewModel = PLMessagesViewModel(repository: repository)
+
+        await viewModel.loadThreads()
+        viewModel.searchText = "tag"
+
+        XCTAssertEqual(viewModel.filteredThreads, [secondThread])
+    }
+
+    func testUnreadFilter() async {
+        let unreadThread = PLMessageThread(title: "Build", preview: "Ready.")
+        let readThread = PLMessageThread(title: "Release", preview: "Queued.", isUnread: false)
+        let repository = PLMessageRepository(
+            dataSource: PLStaticMessageDataSource(threads: [unreadThread, readThread])
+        )
+        let viewModel = PLMessagesViewModel(repository: repository)
+
+        await viewModel.loadThreads()
+        viewModel.showsUnreadOnly = true
+
+        XCTAssertEqual(viewModel.unreadThreadCount, 1)
+        XCTAssertEqual(viewModel.filteredThreads, [unreadThread])
+    }
+
+    func testToggleReadStatus() async {
+        let thread = PLMessageThread(id: "build", title: "Build", preview: "Ready.")
+        let repository = PLMessageRepository(
+            dataSource: PLStaticMessageDataSource(threads: [thread])
+        )
+        let viewModel = PLMessagesViewModel(repository: repository)
+
+        await viewModel.loadThreads()
+        viewModel.toggleReadStatus(id: "build")
+
+        XCTAssertEqual(
+            viewModel.threads,
+            [PLMessageThread(id: "build", title: "Build", preview: "Ready.", isUnread: false)]
+        )
+    }
+
     func testRemoteDataSourceDecodesThreads() async throws {
         let endpoint = PLTestEndpoint()
         let payload = """
@@ -26,6 +71,8 @@ final class PLMessagesViewModelTests: XCTestCase {
             "id": "platform",
             "title": "Platform",
             "preview": "Remote messages are ready."
+            ,
+            "isUnread": false
           }
         ]
         """.data(using: .utf8)!
@@ -55,7 +102,8 @@ final class PLMessagesViewModelTests: XCTestCase {
                 PLMessageThread(
                     id: "platform",
                     title: "Platform",
-                    preview: "Remote messages are ready."
+                    preview: "Remote messages are ready.",
+                    isUnread: false
                 )
             ]
         )

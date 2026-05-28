@@ -4,6 +4,8 @@ import Observation
 @Observable
 final class PLMessagesViewModel {
     var threads: [PLMessageThread] = []
+    var searchText = ""
+    var showsUnreadOnly = false
     var isLoading = false
     var errorMessage: String?
 
@@ -11,6 +13,25 @@ final class PLMessagesViewModel {
 
     init(repository: any PLMessageRepositoryProtocol = PLMessageRepository()) {
         self.repository = repository
+    }
+
+    var unreadThreadCount: Int {
+        threads.filter(\.isUnread).count
+    }
+
+    var filteredThreads: [PLMessageThread] {
+        let unreadFilteredThreads = showsUnreadOnly
+            ? threads.filter(\.isUnread)
+            : threads
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else {
+            return unreadFilteredThreads
+        }
+
+        return unreadFilteredThreads.filter {
+            $0.title.localizedCaseInsensitiveContains(query)
+            || $0.preview.localizedCaseInsensitiveContains(query)
+        }
     }
 
     func loadThreads() async {
@@ -28,5 +49,13 @@ final class PLMessagesViewModel {
 
     func refreshThreads() async {
         await loadThreads()
+    }
+
+    func toggleReadStatus(id: PLMessageThread.ID) {
+        guard let index = threads.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+
+        threads[index].isUnread.toggle()
     }
 }

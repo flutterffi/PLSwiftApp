@@ -21,7 +21,7 @@ final class PLDashboardViewModelTests: XCTestCase {
             dataSource: PLStaticMessageDataSource(
                 threads: [
                     PLMessageThread(title: "Platform", preview: "Ready."),
-                    PLMessageThread(title: "Release", preview: "Queued.")
+                    PLMessageThread(title: "Release", preview: "Queued.", isUnread: false)
                 ]
             )
         )
@@ -41,6 +41,7 @@ final class PLDashboardViewModelTests: XCTestCase {
                 PLDashboardSummary(title: "Due Today", value: "1"),
                 PLDashboardSummary(title: "Overdue", value: "1"),
                 PLDashboardSummary(title: "Messages", value: "2"),
+                PLDashboardSummary(title: "Unread Messages", value: "1"),
                 PLDashboardSummary(title: "Status", value: "Active")
             ]
         )
@@ -73,6 +74,7 @@ final class PLDashboardViewModelTests: XCTestCase {
                 PLDashboardSummary(title: "Due Today", value: "0"),
                 PLDashboardSummary(title: "Overdue", value: "0"),
                 PLDashboardSummary(title: "Messages", value: "0"),
+                PLDashboardSummary(title: "Unread Messages", value: "0"),
                 PLDashboardSummary(title: "Status", value: "Clear")
             ]
         )
