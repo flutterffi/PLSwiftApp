@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PLMessagesView: View {
-    let viewModel: PLMessagesViewModel
+    @Bindable var viewModel: PLMessagesViewModel
 
     var body: some View {
         NavigationStack {
@@ -16,6 +16,43 @@ struct PLMessagesView: View {
                 .padding(.vertical, 4)
             }
             .navigationTitle("Messages")
+            .overlay {
+                if viewModel.isLoading {
+                    ProgressView()
+                }
+            }
+            .alert(
+                "Message Error",
+                isPresented: Binding(
+                    get: { viewModel.errorMessage != nil },
+                    set: { isPresented in
+                        if !isPresented {
+                            viewModel.errorMessage = nil
+                        }
+                    }
+                )
+            ) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(viewModel.errorMessage ?? "")
+            }
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        Task {
+                            await viewModel.refreshThreads()
+                        }
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                    }
+                }
+            }
+            .refreshable {
+                await viewModel.refreshThreads()
+            }
+            .task {
+                await viewModel.loadThreads()
+            }
         }
     }
 }

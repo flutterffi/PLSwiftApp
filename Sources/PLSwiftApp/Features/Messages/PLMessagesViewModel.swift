@@ -1,21 +1,32 @@
 import Observation
 
+@MainActor
 @Observable
 final class PLMessagesViewModel {
-    var threads: [PLMessageThread] = [
-        PLMessageThread(title: "Platform", preview: "Architecture baseline is ready."),
-        PLMessageThread(title: "Release", preview: "Tag preparation is queued.")
-    ]
-}
+    var threads: [PLMessageThread] = []
+    var isLoading = false
+    var errorMessage: String?
 
-struct PLMessageThread: Equatable, Identifiable {
-    let id: String
-    var title: String
-    var preview: String
+    private let repository: any PLMessageRepositoryProtocol
 
-    init(id: String? = nil, title: String, preview: String) {
-        self.id = id ?? title
-        self.title = title
-        self.preview = preview
+    init(repository: any PLMessageRepositoryProtocol = PLMessageRepository()) {
+        self.repository = repository
+    }
+
+    func loadThreads() async {
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            threads = try await repository.fetchThreads()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+
+        isLoading = false
+    }
+
+    func refreshThreads() async {
+        await loadThreads()
     }
 }

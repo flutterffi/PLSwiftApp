@@ -7,9 +7,15 @@ struct PLAppView: View {
     @State private var messagesViewModel = PLMessagesViewModel()
     @State private var settingsViewModel = PLSettingsViewModel()
 
-    init(taskRepository: any PLTaskRepositoryProtocol = PLTaskRepository()) {
+    init(
+        taskRepository: any PLTaskRepositoryProtocol = PLTaskRepository(),
+        messageRepository: any PLMessageRepositoryProtocol = PLMessageRepository()
+    ) {
         _tasksViewModel = State(
             initialValue: PLTasksViewModel(repository: taskRepository)
+        )
+        _messagesViewModel = State(
+            initialValue: PLMessagesViewModel(repository: messageRepository)
         )
     }
 
