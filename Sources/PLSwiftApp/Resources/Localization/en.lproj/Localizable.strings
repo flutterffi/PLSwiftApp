@@ -1,0 +1,8 @@
+"dashboard.title" = "Dashboard";
+"tasks.title" = "Tasks";
+"messages.title" = "Messages";
+"settings.title" = "Settings";
+"empty.tasks.title" = "No tasks yet";
+"empty.tasks.message" = "Create your first task to start tracking work.";
+"empty.messages.title" = "No messages";
+"empty.messages.message" = "New updates will appear here.";

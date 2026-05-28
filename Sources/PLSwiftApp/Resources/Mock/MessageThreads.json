@@ -1,0 +1,12 @@
+[
+  {
+    "title": "Platform",
+    "preview": "Resource pipeline is ready.",
+    "isUnread": true
+  },
+  {
+    "title": "Release",
+    "preview": "The next app tag is prepared.",
+    "isUnread": false
+  }
+]

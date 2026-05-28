@@ -22,6 +22,10 @@ All app-level types use the `PL` prefix.
 
 Resources live in `Sources/PLSwiftApp/Resources`.
 
+- `Assets.xcassets` contains sample app icon, tab icon, empty-state image, and color token assets.
+- `Localization/en.lproj/Localizable.strings` contains localized UI strings.
+- `Mock` contains JSON seed data and font design tokens.
+
 SwiftGen runs through the Swift Package Manager plugin during builds and generates typed accessors from `swiftgen.yml` into derived sources. To run resource generation manually:
 
 ```sh

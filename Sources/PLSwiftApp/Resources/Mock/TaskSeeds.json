@@ -1,0 +1,17 @@
+[
+  {
+    "title": "Review resource tokens",
+    "priority": "High",
+    "isCompleted": false
+  },
+  {
+    "title": "Wire empty states",
+    "priority": "Medium",
+    "isCompleted": false
+  },
+  {
+    "title": "Verify localized strings",
+    "priority": "Low",
+    "isCompleted": true
+  }
+]

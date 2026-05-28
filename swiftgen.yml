@@ -9,3 +9,23 @@ xcassets:
       output: PLResources+Assets.swift
       params:
         enumName: PLAsset
+
+strings:
+  inputs:
+    - Localization/en.lproj/Localizable.strings
+  outputs:
+    - templateName: structured-swift5
+      output: PLResources+Strings.swift
+      params:
+        enumName: PLString
+
+json:
+  inputs:
+    - Mock/FontTokens.json
+    - Mock/MessageThreads.json
+    - Mock/TaskSeeds.json
+  outputs:
+    - templateName: runtime-swift5
+      output: PLResources+JSON.swift
+      params:
+        enumName: PLJSON

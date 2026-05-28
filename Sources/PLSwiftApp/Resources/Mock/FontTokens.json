@@ -1,0 +1,20 @@
+{
+  "families": {
+    "display": "SF Pro Display",
+    "body": "SF Pro Text",
+    "mono": "SF Mono"
+  },
+  "sizes": {
+    "largeTitle": 34,
+    "title": 28,
+    "headline": 17,
+    "body": 17,
+    "caption": 12
+  },
+  "weights": {
+    "regular": "regular",
+    "medium": "medium",
+    "semibold": "semibold",
+    "bold": "bold"
+  }
+}
