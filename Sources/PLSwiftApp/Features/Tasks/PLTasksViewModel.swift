@@ -5,6 +5,7 @@ import Observation
 @MainActor
 final class PLTasksViewModel {
     var draftTitle = ""
+    var draftPriority: PLTaskPriority = .medium
     var tasks: [PLTaskItem] = []
     var selectedFilter: PLTaskFilter = .all
     var searchText = ""
@@ -73,8 +74,15 @@ final class PLTasksViewModel {
             return
         }
 
-        tasks.append(PLTaskItem(id: idProvider(), title: title))
+        tasks.append(
+            PLTaskItem(
+                id: idProvider(),
+                title: title,
+                priority: draftPriority
+            )
+        )
         draftTitle = ""
+        draftPriority = .medium
         await saveTasks()
     }
 
@@ -88,6 +96,14 @@ final class PLTasksViewModel {
     }
 
     func updateTaskTitle(id: PLTaskItem.ID, title: String) async {
+        await updateTask(id: id, title: title, priority: nil)
+    }
+
+    func updateTask(
+        id: PLTaskItem.ID,
+        title: String,
+        priority: PLTaskPriority?
+    ) async {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedTitle.isEmpty,
               let index = tasks.firstIndex(where: { $0.id == id }) else {
@@ -95,6 +111,9 @@ final class PLTasksViewModel {
         }
 
         tasks[index].title = trimmedTitle
+        if let priority {
+            tasks[index].priority = priority
+        }
         await saveTasks()
     }
 

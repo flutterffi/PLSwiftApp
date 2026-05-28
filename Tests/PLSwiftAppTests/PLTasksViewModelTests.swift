@@ -27,7 +27,24 @@ final class PLTasksViewModelTests: XCTestCase {
         await viewModel.addTask()
 
         XCTAssertEqual(viewModel.draftTitle, "")
+        XCTAssertEqual(viewModel.draftPriority, .medium)
         XCTAssertEqual(viewModel.tasks, [PLTaskItem(id: taskID, title: "Ship baseline")])
+    }
+
+    func testAddTaskWithPriority() async {
+        let taskID = UUID(uuidString: "99999999-9999-9999-9999-999999999999")!
+        let repository = PLTaskRepository(dataSource: PLInMemoryTaskDataSource(tasks: []))
+        let viewModel = PLTasksViewModel(repository: repository, idProvider: { taskID })
+
+        viewModel.draftTitle = "Escalate release"
+        viewModel.draftPriority = .high
+        await viewModel.addTask()
+
+        XCTAssertEqual(
+            viewModel.tasks,
+            [PLTaskItem(id: taskID, title: "Escalate release", priority: .high)]
+        )
+        XCTAssertEqual(viewModel.draftPriority, .medium)
     }
 
     func testToggleDeleteAndClearTasks() async {
@@ -134,6 +151,31 @@ final class PLTasksViewModelTests: XCTestCase {
         XCTAssertEqual(savedTasks, [PLTaskItem(id: taskID, title: "Final title")])
     }
 
+    func testUpdateTaskPriority() async throws {
+        let taskID = UUID(uuidString: "77777777-7777-7777-7777-777777777777")!
+        let task = PLTaskItem(id: taskID, title: "Draft")
+        let repository = PLTaskRepository(
+            dataSource: PLInMemoryTaskDataSource(tasks: [task])
+        )
+        let viewModel = PLTasksViewModel(repository: repository)
+
+        await viewModel.loadTasks()
+        await viewModel.updateTask(
+            id: taskID,
+            title: "Final title",
+            priority: .high
+        )
+        let savedTasks = try await repository.fetchTasks()
+        let expectedTask = PLTaskItem(
+            id: taskID,
+            title: "Final title",
+            priority: .high
+        )
+
+        XCTAssertEqual(viewModel.tasks, [expectedTask])
+        XCTAssertEqual(savedTasks, [expectedTask])
+    }
+
     func testUpdateTaskTitleIgnoresEmptyTitle() async throws {
         let taskID = UUID(uuidString: "EEEEEEEE-EEEE-EEEE-EEEE-EEEEEEEEEEEE")!
         let task = PLTaskItem(id: taskID, title: "Keep")
@@ -202,7 +244,11 @@ final class PLTasksViewModelTests: XCTestCase {
         )
         let dataSource = PLSwiftDataTaskDataSource(modelContext: container.mainContext)
         let repository = PLTaskRepository(dataSource: dataSource)
-        let task = PLTaskItem(title: "Persisted task", isCompleted: true)
+        let task = PLTaskItem(
+            title: "Persisted task",
+            isCompleted: true,
+            priority: .high
+        )
 
         try await repository.saveTasks([task])
         let loadedTasks = try await repository.fetchTasks()

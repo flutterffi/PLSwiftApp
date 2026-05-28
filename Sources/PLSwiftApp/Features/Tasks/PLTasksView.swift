@@ -4,6 +4,7 @@ struct PLTasksView: View {
     @Bindable var viewModel: PLTasksViewModel
     @State private var editTaskID: PLTaskItem.ID?
     @State private var editTitle = ""
+    @State private var editPriority: PLTaskPriority = .medium
 
     var body: some View {
         NavigationStack {
@@ -21,8 +22,16 @@ struct PLTasksView: View {
                                 .imageScale(.large)
                         }
                         .disabled(!viewModel.canAddTask)
-                        .buttonStyle(.borderless)
+                            .buttonStyle(.borderless)
                     }
+
+                    Picker("Priority", selection: $viewModel.draftPriority) {
+                        ForEach(PLTaskPriority.allCases) { priority in
+                            Text(priority.rawValue)
+                                .tag(priority)
+                        }
+                    }
+                    .pickerStyle(.segmented)
                 }
 
                 Section {
@@ -49,6 +58,9 @@ struct PLTasksView: View {
                                     .strikethrough(task.isCompleted)
                                     .foregroundStyle(task.isCompleted ? .secondary : .primary)
                                 Spacer()
+                                Text(task.priority.rawValue)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
                             }
                             .contentShape(Rectangle())
                         }
@@ -57,6 +69,7 @@ struct PLTasksView: View {
                             Button("Edit") {
                                 editTaskID = task.id
                                 editTitle = task.title
+                                editPriority = task.priority
                             }
                             .tint(.blue)
                         }
@@ -120,6 +133,7 @@ struct PLTasksView: View {
                         if !isPresented {
                             editTaskID = nil
                             editTitle = ""
+                            editPriority = .medium
                         }
                     }
                 )
@@ -127,6 +141,12 @@ struct PLTasksView: View {
                 NavigationStack {
                     Form {
                         TextField("Task title", text: $editTitle)
+                        Picker("Priority", selection: $editPriority) {
+                            ForEach(PLTaskPriority.allCases) { priority in
+                                Text(priority.rawValue)
+                                    .tag(priority)
+                            }
+                        }
                     }
                     .navigationTitle("Edit Task")
                     .toolbar {
@@ -134,6 +154,7 @@ struct PLTasksView: View {
                             Button("Cancel") {
                                 editTaskID = nil
                                 editTitle = ""
+                                editPriority = .medium
                             }
                         }
                         ToolbarItem(placement: .confirmationAction) {
@@ -142,12 +163,14 @@ struct PLTasksView: View {
                                     return
                                 }
                                 Task {
-                                    await viewModel.updateTaskTitle(
+                                    await viewModel.updateTask(
                                         id: editTaskID,
-                                        title: editTitle
+                                        title: editTitle,
+                                        priority: editPriority
                                     )
                                     self.editTaskID = nil
                                     editTitle = ""
+                                    editPriority = .medium
                                 }
                             }
                             .disabled(editTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
