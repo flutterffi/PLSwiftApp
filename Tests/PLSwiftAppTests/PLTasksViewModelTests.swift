@@ -47,6 +47,24 @@ final class PLTasksViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.draftPriority, .medium)
     }
 
+    func testAddTaskWithDueDate() async {
+        let taskID = UUID(uuidString: "88888888-8888-8888-8888-888888888888")!
+        let dueDate = Date(timeIntervalSince1970: 1_800_000_000)
+        let repository = PLTaskRepository(dataSource: PLInMemoryTaskDataSource(tasks: []))
+        let viewModel = PLTasksViewModel(repository: repository, idProvider: { taskID })
+
+        viewModel.draftTitle = "Schedule release"
+        viewModel.isDraftDueDateEnabled = true
+        viewModel.draftDueDate = dueDate
+        await viewModel.addTask()
+
+        XCTAssertEqual(
+            viewModel.tasks,
+            [PLTaskItem(id: taskID, title: "Schedule release", dueDate: dueDate)]
+        )
+        XCTAssertFalse(viewModel.isDraftDueDateEnabled)
+    }
+
     func testToggleDeleteAndClearTasks() async {
         let firstTaskID = UUID(uuidString: "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA")!
         let secondTaskID = UUID(uuidString: "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC")!
@@ -163,7 +181,8 @@ final class PLTasksViewModelTests: XCTestCase {
         await viewModel.updateTask(
             id: taskID,
             title: "Final title",
-            priority: .high
+            priority: .high,
+            dueDate: nil
         )
         let savedTasks = try await repository.fetchTasks()
         let expectedTask = PLTaskItem(
@@ -174,6 +193,55 @@ final class PLTasksViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.tasks, [expectedTask])
         XCTAssertEqual(savedTasks, [expectedTask])
+    }
+
+    func testUpdateTaskDueDate() async throws {
+        let taskID = UUID(uuidString: "66666666-6666-6666-6666-666666666666")!
+        let dueDate = Date(timeIntervalSince1970: 1_800_000_000)
+        let task = PLTaskItem(id: taskID, title: "Draft")
+        let repository = PLTaskRepository(
+            dataSource: PLInMemoryTaskDataSource(tasks: [task])
+        )
+        let viewModel = PLTasksViewModel(repository: repository)
+
+        await viewModel.loadTasks()
+        await viewModel.updateTask(
+            id: taskID,
+            title: "Final title",
+            priority: .high,
+            dueDate: dueDate
+        )
+        let savedTasks = try await repository.fetchTasks()
+        let expectedTask = PLTaskItem(
+            id: taskID,
+            title: "Final title",
+            priority: .high,
+            dueDate: dueDate
+        )
+
+        XCTAssertEqual(viewModel.tasks, [expectedTask])
+        XCTAssertEqual(savedTasks, [expectedTask])
+    }
+
+    func testUpdateTaskClearsDueDate() async throws {
+        let taskID = UUID(uuidString: "55555555-5555-5555-5555-555555555555")!
+        let dueDate = Date(timeIntervalSince1970: 1_800_000_000)
+        let task = PLTaskItem(id: taskID, title: "Draft", dueDate: dueDate)
+        let repository = PLTaskRepository(
+            dataSource: PLInMemoryTaskDataSource(tasks: [task])
+        )
+        let viewModel = PLTasksViewModel(repository: repository)
+
+        await viewModel.loadTasks()
+        await viewModel.updateTask(
+            id: taskID,
+            title: "Final title",
+            priority: nil,
+            dueDate: .some(nil)
+        )
+        let expectedTask = PLTaskItem(id: taskID, title: "Final title")
+
+        XCTAssertEqual(viewModel.tasks, [expectedTask])
     }
 
     func testUpdateTaskTitleIgnoresEmptyTitle() async throws {
@@ -247,7 +315,8 @@ final class PLTasksViewModelTests: XCTestCase {
         let task = PLTaskItem(
             title: "Persisted task",
             isCompleted: true,
-            priority: .high
+            priority: .high,
+            dueDate: Date(timeIntervalSince1970: 1_800_000_000)
         )
 
         try await repository.saveTasks([task])

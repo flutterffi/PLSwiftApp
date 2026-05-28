@@ -47,7 +47,8 @@ final class PLSwiftDataTaskDataSource: PLTaskDataSourceProtocol {
                 id: $0.id,
                 title: $0.title,
                 isCompleted: $0.isCompleted,
-                priority: PLTaskPriority(rawValue: $0.priorityRawValue) ?? .medium
+                priority: PLTaskPriority(rawValue: $0.priorityRawValue) ?? .medium,
+                dueDate: $0.dueDate
             )
         }
     }
@@ -62,6 +63,7 @@ final class PLSwiftDataTaskDataSource: PLTaskDataSourceProtocol {
                     title: task.title,
                     isCompleted: task.isCompleted,
                     priorityRawValue: task.priority.rawValue,
+                    dueDate: task.dueDate,
                     sortIndex: index
                 )
             )

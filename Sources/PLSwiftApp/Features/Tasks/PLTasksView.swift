@@ -5,6 +5,8 @@ struct PLTasksView: View {
     @State private var editTaskID: PLTaskItem.ID?
     @State private var editTitle = ""
     @State private var editPriority: PLTaskPriority = .medium
+    @State private var isEditDueDateEnabled = false
+    @State private var editDueDate = Date()
 
     var body: some View {
         NavigationStack {
@@ -22,7 +24,7 @@ struct PLTasksView: View {
                                 .imageScale(.large)
                         }
                         .disabled(!viewModel.canAddTask)
-                            .buttonStyle(.borderless)
+                        .buttonStyle(.borderless)
                     }
 
                     Picker("Priority", selection: $viewModel.draftPriority) {
@@ -32,6 +34,15 @@ struct PLTasksView: View {
                         }
                     }
                     .pickerStyle(.segmented)
+
+                    Toggle("Due Date", isOn: $viewModel.isDraftDueDateEnabled)
+                    if viewModel.isDraftDueDateEnabled {
+                        DatePicker(
+                            "Date",
+                            selection: $viewModel.draftDueDate,
+                            displayedComponents: .date
+                        )
+                    }
                 }
 
                 Section {
@@ -61,6 +72,11 @@ struct PLTasksView: View {
                                 Text(task.priority.rawValue)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
+                                if let dueDate = task.dueDate {
+                                    Text(dueDate, style: .date)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
                             }
                             .contentShape(Rectangle())
                         }
@@ -70,6 +86,8 @@ struct PLTasksView: View {
                                 editTaskID = task.id
                                 editTitle = task.title
                                 editPriority = task.priority
+                                isEditDueDateEnabled = task.dueDate != nil
+                                editDueDate = task.dueDate ?? Date()
                             }
                             .tint(.blue)
                         }
@@ -134,6 +152,8 @@ struct PLTasksView: View {
                             editTaskID = nil
                             editTitle = ""
                             editPriority = .medium
+                            isEditDueDateEnabled = false
+                            editDueDate = Date()
                         }
                     }
                 )
@@ -147,6 +167,14 @@ struct PLTasksView: View {
                                     .tag(priority)
                             }
                         }
+                        Toggle("Due Date", isOn: $isEditDueDateEnabled)
+                        if isEditDueDateEnabled {
+                            DatePicker(
+                                "Date",
+                                selection: $editDueDate,
+                                displayedComponents: .date
+                            )
+                        }
                     }
                     .navigationTitle("Edit Task")
                     .toolbar {
@@ -155,6 +183,8 @@ struct PLTasksView: View {
                                 editTaskID = nil
                                 editTitle = ""
                                 editPriority = .medium
+                                isEditDueDateEnabled = false
+                                editDueDate = Date()
                             }
                         }
                         ToolbarItem(placement: .confirmationAction) {
@@ -166,11 +196,14 @@ struct PLTasksView: View {
                                     await viewModel.updateTask(
                                         id: editTaskID,
                                         title: editTitle,
-                                        priority: editPriority
+                                        priority: editPriority,
+                                        dueDate: isEditDueDateEnabled ? editDueDate : nil
                                     )
                                     self.editTaskID = nil
                                     editTitle = ""
                                     editPriority = .medium
+                                    isEditDueDateEnabled = false
+                                    editDueDate = Date()
                                 }
                             }
                             .disabled(editTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)

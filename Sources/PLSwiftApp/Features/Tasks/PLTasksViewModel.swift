@@ -6,6 +6,8 @@ import Observation
 final class PLTasksViewModel {
     var draftTitle = ""
     var draftPriority: PLTaskPriority = .medium
+    var isDraftDueDateEnabled = false
+    var draftDueDate = Date()
     var tasks: [PLTaskItem] = []
     var selectedFilter: PLTaskFilter = .all
     var searchText = ""
@@ -78,11 +80,14 @@ final class PLTasksViewModel {
             PLTaskItem(
                 id: idProvider(),
                 title: title,
-                priority: draftPriority
+                priority: draftPriority,
+                dueDate: isDraftDueDateEnabled ? draftDueDate : nil
             )
         )
         draftTitle = ""
         draftPriority = .medium
+        isDraftDueDateEnabled = false
+        draftDueDate = Date()
         await saveTasks()
     }
 
@@ -96,13 +101,14 @@ final class PLTasksViewModel {
     }
 
     func updateTaskTitle(id: PLTaskItem.ID, title: String) async {
-        await updateTask(id: id, title: title, priority: nil)
+        await updateTask(id: id, title: title, priority: nil, dueDate: nil)
     }
 
     func updateTask(
         id: PLTaskItem.ID,
         title: String,
-        priority: PLTaskPriority?
+        priority: PLTaskPriority?,
+        dueDate: Date??
     ) async {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedTitle.isEmpty,
@@ -113,6 +119,9 @@ final class PLTasksViewModel {
         tasks[index].title = trimmedTitle
         if let priority {
             tasks[index].priority = priority
+        }
+        if let dueDate {
+            tasks[index].dueDate = dueDate
         }
         await saveTasks()
     }
