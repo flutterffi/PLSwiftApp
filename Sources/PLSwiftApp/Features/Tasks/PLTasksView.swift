@@ -108,6 +108,11 @@ struct PLTasksView: View {
             .task {
                 await viewModel.loadTasks()
             }
+            .searchable(
+                text: $viewModel.searchText,
+                placement: .automatic,
+                prompt: "Search tasks"
+            )
             .sheet(
                 isPresented: Binding(
                     get: { editTaskID != nil },

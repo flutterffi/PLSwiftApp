@@ -7,6 +7,7 @@ final class PLTasksViewModel {
     var draftTitle = ""
     var tasks: [PLTaskItem] = []
     var selectedFilter: PLTaskFilter = .all
+    var searchText = ""
     var isLoading = false
     var errorMessage: String?
 
@@ -26,13 +27,22 @@ final class PLTasksViewModel {
     }
 
     var filteredTasks: [PLTaskItem] {
-        switch selectedFilter {
+        let filteredTasks = switch selectedFilter {
         case .all:
-            return tasks
+            tasks
         case .active:
-            return tasks.filter { !$0.isCompleted }
+            tasks.filter { !$0.isCompleted }
         case .done:
-            return tasks.filter(\.isCompleted)
+            tasks.filter(\.isCompleted)
+        }
+
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else {
+            return filteredTasks
+        }
+
+        return filteredTasks.filter {
+            $0.title.localizedCaseInsensitiveContains(query)
         }
     }
 
@@ -41,7 +51,7 @@ final class PLTasksViewModel {
     }
 
     var canReorderTasks: Bool {
-        selectedFilter == .all
+        selectedFilter == .all && searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     func loadTasks() async {

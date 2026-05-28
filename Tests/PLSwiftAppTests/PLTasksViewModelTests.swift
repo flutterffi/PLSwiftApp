@@ -88,6 +88,36 @@ final class PLTasksViewModelTests: XCTestCase {
         XCTAssertEqual(savedTasks, [firstTask])
     }
 
+    func testSearchTasks() async {
+        let firstTask = PLTaskItem(title: "Review architecture")
+        let secondTask = PLTaskItem(title: "Prepare release")
+        let thirdTask = PLTaskItem(title: "Archive release notes", isCompleted: true)
+        let repository = PLTaskRepository(
+            dataSource: PLInMemoryTaskDataSource(tasks: [firstTask, secondTask, thirdTask])
+        )
+        let viewModel = PLTasksViewModel(repository: repository)
+
+        await viewModel.loadTasks()
+        viewModel.searchText = "release"
+
+        XCTAssertEqual(viewModel.filteredTasks, [secondTask, thirdTask])
+    }
+
+    func testSearchCombinesWithFilter() async {
+        let activeTask = PLTaskItem(title: "Prepare release")
+        let doneTask = PLTaskItem(title: "Archive release notes", isCompleted: true)
+        let repository = PLTaskRepository(
+            dataSource: PLInMemoryTaskDataSource(tasks: [activeTask, doneTask])
+        )
+        let viewModel = PLTasksViewModel(repository: repository)
+
+        await viewModel.loadTasks()
+        viewModel.selectedFilter = .done
+        viewModel.searchText = "release"
+
+        XCTAssertEqual(viewModel.filteredTasks, [doneTask])
+    }
+
     func testUpdateTaskTitle() async throws {
         let taskID = UUID(uuidString: "DDDDDDDD-DDDD-DDDD-DDDD-DDDDDDDDDDDD")!
         let task = PLTaskItem(id: taskID, title: "Draft")
@@ -145,6 +175,21 @@ final class PLTasksViewModelTests: XCTestCase {
 
         await viewModel.loadTasks()
         viewModel.selectedFilter = .active
+        await viewModel.moveTasks(from: IndexSet(integer: 0), to: 2)
+
+        XCTAssertEqual(viewModel.tasks, [firstTask, secondTask])
+    }
+
+    func testMoveTasksRequiresEmptySearch() async {
+        let firstTask = PLTaskItem(title: "First")
+        let secondTask = PLTaskItem(title: "Second")
+        let repository = PLTaskRepository(
+            dataSource: PLInMemoryTaskDataSource(tasks: [firstTask, secondTask])
+        )
+        let viewModel = PLTasksViewModel(repository: repository)
+
+        await viewModel.loadTasks()
+        viewModel.searchText = "first"
         await viewModel.moveTasks(from: IndexSet(integer: 0), to: 2)
 
         XCTAssertEqual(viewModel.tasks, [firstTask, secondTask])
