@@ -25,14 +25,5 @@ jobs:
       - name: Show Swift version
         run: swift --version
 
-      - name: Resolve dependencies
-        run: swift package resolve
-
-      - name: Show dependency graph
-        run: swift package show-dependencies
-
-      - name: Test
-        run: swift test
-
-      - name: Test with warnings as errors
-        run: swift test -Xswiftc -warnings-as-errors
+      - name: Validate
+        run: make validate

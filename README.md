@@ -39,3 +39,11 @@ SwiftGen runs through the Swift Package Manager plugin during builds and generat
 ```sh
 swift package --allow-writing-to-package-directory generate-code-for-resources
 ```
+
+## Validation
+
+Use the same validation entry point locally and in CI:
+
+```sh
+make validate
+```
